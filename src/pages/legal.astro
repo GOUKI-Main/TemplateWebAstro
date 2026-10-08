@@ -1,0 +1,44 @@
+---
+import Base from "../layouts/Base.astro";
+import { site } from "../content/site";
+
+// TODO(setup): Q13 法的表記 — プライバシーポリシー / 特定商取引法に基づく表記
+// （通信販売・オンライン決済をする場合は特商法表記が必須）。不要なら nav から外す。
+const title = "サイトポリシー";
+---
+
+<Base
+  title={title}
+  description={`${site.name}のプライバシーポリシーと免責事項です。`}
+  canonicalPath="/legal"
+>
+  <article class="prose">
+    <h1>{title}</h1>
+
+    <h2>プライバシーポリシー</h2>
+    <p>
+      お問い合わせでお預かりした個人情報は、ご返信のためにのみ利用し、法令に基づく場合を除いて第三者に提供しません。
+    </p>
+    <p>
+      当サイトでは、利用状況の把握のためにCookieを使用しないアクセス解析を利用する場合があります。
+    </p>
+
+    <h2>免責事項</h2>
+    <p>
+      当サイトの情報は正確さに努めていますが、その内容を保証するものではありません。掲載内容は予告なく変更・削除する場合があります。
+    </p>
+
+    {
+      site.author.email && (
+        <>
+          <h2>お問い合わせ窓口</h2>
+          <p>
+            {site.business?.legalName ?? site.name}（{site.author.name}）
+            <br />
+            <a href={`mailto:${site.author.email}`}>{site.author.email}</a>
+          </p>
+        </>
+      )
+    }
+  </article>
+</Base>

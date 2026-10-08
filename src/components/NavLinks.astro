@@ -1,0 +1,42 @@
+---
+import type { SiteNavItem } from "../content/site";
+
+// The nav link list, rendered twice by Header (mobile disclosure + desktop
+// row). Active state is derived from the current path, not passed in, so the
+// two copies can never disagree.
+const { items, block = false } = Astro.props as {
+  items: SiteNavItem[];
+  /** Stacked, full-width tap targets (mobile menu) instead of an inline row. */
+  block?: boolean;
+};
+
+const path = Astro.url.pathname;
+const isActive = (href: string) =>
+  href === "/" ? path === "/" : path === href || path.startsWith(`${href}/`);
+---
+
+<ul class:list={["m-0 list-none p-0", block ? "flex flex-col" : "flex gap-4"]}>
+  {
+    items.map((item) => {
+      const active = isActive(item.href);
+      return (
+        <li>
+          <a
+            href={item.href}
+            aria-current={active ? "page" : undefined}
+            class:list={[
+              "tap-target no-underline hover:text-link",
+              // justify-start: tap-target centers its content so short labels
+              // sit in the middle of their minimum box, but a full-width row
+              // in the mobile menu has to stay left-aligned.
+              block && "w-full justify-start py-1",
+              active ? "font-semibold text-fg" : "text-muted",
+            ]}
+          >
+            {item.label}
+          </a>
+        </li>
+      );
+    })
+  }
+</ul>

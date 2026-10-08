@@ -1,0 +1,218 @@
+{
+  // ============================================================================
+  //  wrangler.jsonc — Astro 静的サイト → Cloudflare Workers(静的アセット)用 雛形
+  // ----------------------------------------------------------------------------
+  //  方針: 「いま有効な設定」だけ生かし、他は全てコメントアウト＋日本語解説。
+  //        必要時に該当行の // を外して使う、自己ドキュメント型テンプレート。
+  //  構成: Astro 7 の完全静的サイト(SSRアダプタ無し)= Worker無し "assets-only"。
+  //
+  //  デプロイ: GitHub 連携の Cloudflare Workers Builds が push 時に自動ビルド&デプロイ。
+  //   - 本番ブランチ:   Deploy command = `npx wrangler deploy`(ダッシュボード既定)
+  //   - 非本番ブランチ: `npx wrangler versions upload`(プレビューURL→PRコメント)
+  //   - Build command = `pnpm build`(出力 ./dist を本ファイルの assets でアップロード)
+  //   - サイトURL・解析トークン等は src/content/site.ts にコミット済み(ビルド変数は不要)
+  //   - wrangler は devDependency 済み(CI が版を固定して使用)
+  //  ローカル確認(任意): pnpm build && npx wrangler dev
+  //  その他:
+  //   - 機密値はここに書かない: `npx wrangler secret put <KEY>` / ローカルは .dev.vars
+  //   - 独自ヘッダ/リダイレクトは public/_headers, public/_redirects(ファイル管理)
+  // ============================================================================
+
+  // エディタ補完/検証用スキーマ(wrangler 導入後に有効。未導入でも害なし)。
+  "$schema": "./node_modules/wrangler/config-schema.json",
+
+  // ── 必須 ────────────────────────────────────────────────────────────────
+  // Worker 名。*.workers.dev サブドメイン兼ダッシュボード表示名。
+  // ★サイトごとに変更すること(英数字とハイフンのみ)。
+  "name": "template-web-astro",
+
+  // ランタイムのバージョン基準日(yyyy-mm-dd)。デプロイ日に更新推奨。
+  "compatibility_date": "2026-06-28",
+
+  // ── 静的アセット(このテンプレの本体) ─────────────────────────────────────
+  "assets": {
+    // 配信する静的ファイルの出力先。Astro の build 出力は ./dist。
+    "directory": "./dist",
+
+    // 404 時に dist/404.html(= src/pages/404.astro)を返す。既定は "none"。
+    // Astro 公式も静的サイトでは "404-page" を推奨。
+    "not_found_handling": "404-page",
+
+    // HTML 末尾スラッシュ処理。既定の "auto-trailing-slash" だと /about と
+    // /about/ の両方が 200 で配信され重複URLになる。astro.config の
+    // trailingSlash:"never" と揃え、/about/ → /about に 308 リダイレクトする。
+    "html_handling": "drop-trailing-slash",
+
+    // --- 以下 assets の任意オプション(現状不要) ---------------------------
+
+    // env.ASSETS.fetch() でコードからアセットを読む束縛名。
+    // Worker(main)がある時だけ意味を持つ。静的のみなら不要。
+    // "binding": "ASSETS",
+
+    // 静的アセットより先に Worker を実行するパス(認証/ログ等)。
+    // 例: ["/api/*", "!/api/docs/*"]
+    // "run_worker_first": false
+  }
+
+  // ##########################################################################
+  //  ここから下はすべて「現状未使用」。必要時に // を外して使う。
+  // ##########################################################################
+
+  // ── アカウント / 公開先 ──────────────────────────────────────────────────
+  // 複数アカウント所属時のみ明示。通常は `wrangler login` か環境変数
+  // CLOUDFLARE_ACCOUNT_ID で渡す方が安全。
+  // "account_id": "<ACCOUNT_ID>",
+
+  // *.workers.dev 公開可否(既定 true)。本番でカスタムドメインのみにするなら false。
+  // "workers_dev": true,
+
+  // プレビューURL(バージョン毎URL)有効化。既定は workers_dev に追従。
+  // "preview_urls": true,
+
+  // 独自ドメイン/ゾーンルート割り当て。
+  // "routes": [
+  //   { "pattern": "example.com", "custom_domain": true },         // カスタムドメイン
+  //   { "pattern": "example.com/*", "zone_name": "example.com" }   // ゾーンルート
+  // ],
+  // 単一ルートのみなら↓でも可:
+  // "route": "example.com/*",
+
+  // ── 互換性(将来 SSR 化したとき) ──────────────────────────────────────────
+  // Node 互換等のランタイムフラグ。@astrojs/cloudflare で SSR する際は通常
+  // ["nodejs_compat", "global_fetch_strictly_public"] を付ける。
+  // "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+
+  // SSR の Worker エントリ。アダプタ導入時のビルド出力を指す。
+  // 静的のみの現状は不要(assets-only)。
+  // "main": "dist/_worker.js/index.js",
+
+  // ── 監視 / 制限 / 配置(Worker コードがある時に有効) ─────────────────────
+  // ログ保存。静的のみは記録対象がほぼ無いので未使用。SSR を入れたら true 推奨。
+  // "observability": { "enabled": true, "head_sampling_rate": 1 },
+
+  // 実行リミット。cpu_ms は1リクエストの最大CPU時間(ms)。
+  // "limits": { "cpu_ms": 50 },
+
+  // スマートプレースメント(バックエンド近くで実行し遅延最小化)。
+  // "placement": { "mode": "smart" },
+
+  // Logpush(Trace Events を外部へ送出)。
+  // "logpush": true,
+
+  // Tail Worker(別Workerへログ転送)。
+  // "tail_consumers": [{ "service": "<TAIL_WORKER_NAME>" }],
+
+  // ── 環境変数(機密でない設定値) ──────────────────────────────────────────
+  // 注: Astro 静的ビルドは import.meta.env(ビルド時)を使う。ここの vars は
+  //     Worker ランタイム(SSR)から見える値。役割が違うので混同に注意。
+  // "vars": { "MY_FLAG": "value" },
+
+  // Secrets Store 連携(値は持たない)。
+  // "secrets_store_secrets": [],
+
+  // ── 定期実行 ──────────────────────────────────────────────────────────────
+  // Cron トリガー(scheduled ハンドラが必要)。
+  // "triggers": { "crons": ["0 3 * * *"] },
+
+  // ── バインディング各種(対応リソースを使う時) ────────────────────────────
+  // KV(キーバリュー)
+  // "kv_namespaces": [{ "binding": "KV", "id": "<NAMESPACE_ID>", "preview_id": "<PREVIEW_ID>" }],
+
+  // R2(オブジェクトストレージ)
+  // "r2_buckets": [{ "binding": "BUCKET", "bucket_name": "<BUCKET_NAME>" }],
+
+  // D1(SQLite データベース)
+  // "d1_databases": [{ "binding": "DB", "database_name": "<NAME>", "database_id": "<ID>" }],
+
+  // Durable Objects + マイグレーション(stateful)
+  // "durable_objects": { "bindings": [{ "name": "DO", "class_name": "MyDurableObject" }] },
+  // "migrations": [{ "tag": "v1", "new_sqlite_classes": ["MyDurableObject"] }],
+
+  // Queues(非同期キュー: producer / consumer)
+  // "queues": {
+  //   "producers": [{ "binding": "QUEUE", "queue": "<QUEUE_NAME>" }],
+  //   "consumers": [{ "queue": "<QUEUE_NAME>", "max_batch_size": 10, "dead_letter_queue": "<DLQ>" }]
+  // },
+
+  // Workflows(永続ワークフロー)
+  // "workflows": [{ "binding": "MY_WORKFLOW", "name": "<NAME>", "class_name": "MyWorkflow" }],
+
+  // Service binding(別 Worker を RPC/HTTP で呼ぶ)
+  // "services": [{ "binding": "SVC", "service": "<WORKER_NAME>", "entrypoint": "<EntrypointClass>" }],
+
+  // Vectorize(ベクトル検索)
+  // "vectorize": [{ "binding": "VECTORIZE", "index_name": "<INDEX>" }],
+
+  // Hyperdrive(外部DB高速化プール)
+  // "hyperdrive": [{ "binding": "HYPERDRIVE", "id": "<CONFIG_ID>" }],
+
+  // Workers AI(推論)
+  // "ai": { "binding": "AI" },
+
+  // Browser Rendering(ヘッドレスブラウザ)
+  // "browser": { "binding": "BROWSER" },
+
+  // Images(画像変換バインディング)
+  // "images": { "binding": "IMAGES" },
+
+  // Analytics Engine(時系列データ書込み)
+  // "analytics_engine_datasets": [{ "binding": "ANALYTICS", "dataset": "<DATASET>" }],
+
+  // mTLS 証明書(外部API向けクライアント証明書)
+  // "mtls_certificates": [{ "binding": "MTLS", "certificate_id": "<CERT_ID>" }],
+
+  // Email 送信
+  // "send_email": [{ "name": "EMAIL", "destination_address": "you@example.com" }],
+
+  // Dispatch namespace(Workers for Platforms)
+  // "dispatch_namespaces": [{ "binding": "DISPATCH", "namespace": "<NS>" }],
+
+  // バージョンメタデータ(デプロイのID/タグをコードから参照)
+  // "version_metadata": { "binding": "CF_VERSION_METADATA" },
+
+  // ── ビルド / バンドル(通常は Astro 側でビルドするため不要) ───────────────
+  // wrangler 自前ビルドのフック。Astro は pnpm build を使うので基本不要。
+  // "build": { "command": "pnpm build", "cwd": ".", "watch_dir": "src" },
+
+  // バンドル細目(SSR Worker を自前管理する時のみ)。
+  // "no_bundle": false,
+  // "minify": true,
+  // "keep_names": true,
+  // "upload_source_maps": true,                 // ソースマップを上げスタックトレース改善
+  // "rules": [{ "type": "Text", "globs": ["**/*.txt"], "fallthrough": true }],
+  // "define": { "__VERSION__": "\"1.0.0\"" },    // コンパイル時の文字列置換
+  // "alias": { "lodash": "lodash-es" },          // import の付け替え
+  // "tsconfig": "./tsconfig.json",
+  // "find_additional_modules": false,
+  // "preserve_file_names": false,
+  // "base_dir": "./src",
+
+  // ダッシュボード設定変数をデプロイ時に保持するか(source of truth)。
+  // "keep_vars": false,
+
+  // 使用統計の送信(既定 true)。
+  // "send_metrics": true,
+
+  // ── ローカル開発(wrangler dev の挙動) ───────────────────────────────────
+  // "dev": {
+  //   "ip": "localhost",
+  //   "port": 8787,
+  //   "local_protocol": "http",
+  //   "upstream_protocol": "https"
+  // },
+
+  // ── コンテナ(Durable Object と併用) ────────────────────────────────────
+  // "containers": [{ "image": "./Dockerfile", "class_name": "MyContainer", "instance_type": "basic" }],
+
+  // ── 環境分割(staging / production など) ─────────────────────────────────
+  // env を1つでも上書きすると、その env では non-inheritable キー(vars や各種
+  // バインディング)を“すべて”再定義する必要がある点に注意。
+  // "env": {
+  //   "staging":    { "name": "template-web-astro-staging" },
+  //   "production": { "name": "template-web-astro", "routes": [{ "pattern": "example.com", "custom_domain": true }] }
+  // },
+
+  // ── 非推奨(使わない) ────────────────────────────────────────────────────
+  // "site": { "bucket": "./dist" },   // Workers Sites(非推奨)→ assets を使う
+  // "node_compat": true               // 非推奨 → compatibility_flags の nodejs_compat
+}

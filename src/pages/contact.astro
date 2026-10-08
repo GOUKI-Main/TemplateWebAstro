@@ -1,0 +1,49 @@
+---
+import Base from "../layouts/Base.astro";
+import BusinessInfo from "../components/BusinessInfo.astro";
+import { site } from "../content/site";
+
+// Contact channels all come from site.ts (contactFormUrl, author.email; the
+// phone number is rendered by <BusinessInfo> with the rest of the NAP); this
+// page only decides the order. No form JS is shipped — an external form is a
+// plain link.
+// TODO(setup): Q7 問い合わせ方法の優先順位と、返信の目安などの案内文
+const title = "お問い合わせ";
+const description = `${site.name}へのお問い合わせ方法のご案内です。`;
+---
+
+<Base title={title} description={description} canonicalPath="/contact">
+  <article class="prose">
+    <h1>{title}</h1>
+
+    <p class="lead">
+      ご質問・ご相談はお気軽にどうぞ。通常2営業日以内にご返信します。
+    </p>
+
+    {
+      site.contactFormUrl && (
+        <>
+          <h2>フォームから</h2>
+          <p>
+            <a href={site.contactFormUrl} target="_blank" rel="noopener">
+              お問い合わせフォームを開く
+            </a>
+          </p>
+        </>
+      )
+    }
+
+    {
+      site.author.email && (
+        <>
+          <h2>メールで</h2>
+          <p>
+            <a href={`mailto:${site.author.email}`}>{site.author.email}</a>
+          </p>
+        </>
+      )
+    }
+
+    <BusinessInfo />
+  </article>
+</Base>

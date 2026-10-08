@@ -1,0 +1,66 @@
+---
+import { site } from "../content/site";
+
+// Visible NAP (Name / Address / Phone) for local businesses. Renders only when
+// site.business is set — the same single source that drives the LocalBusiness
+// JSON-LD, so structured data and the visible text always match. (§4 MEO)
+const b = site.business;
+const address = b?.address
+  ? [
+      b.address.streetAddress,
+      b.address.addressLocality,
+      b.address.addressRegion,
+      b.address.postalCode,
+      b.address.addressCountry,
+    ]
+      .filter(Boolean)
+      .join(", ")
+  : null;
+---
+
+{
+  b && (
+    <section class="not-prose mt-8 text-sm" aria-label="事業者情報">
+      <p class="m-0 font-semibold text-fg">{b.legalName ?? site.name}</p>
+      <dl class="mt-2 grid gap-1 text-muted">
+        {address && (
+          <div>
+            <dt class="sr-only">住所</dt>
+            <dd class="m-0">{address}</dd>
+          </div>
+        )}
+        {b.telephone && (
+          <div>
+            <dt class="sr-only">電話番号</dt>
+            <dd class="m-0">
+              <a class="tap-target hover:text-link" href={`tel:${b.telephone}`}>
+                {b.telephone}
+              </a>
+            </dd>
+          </div>
+        )}
+        {b.openingHours && b.openingHours.length > 0 && (
+          <div>
+            <dt class="sr-only">営業時間</dt>
+            <dd class="m-0">{b.openingHours.join(" · ")}</dd>
+          </div>
+        )}
+        {b.hasMap && (
+          <div>
+            <dt class="sr-only">地図</dt>
+            <dd class="m-0">
+              <a
+                class="tap-target hover:text-link"
+                href={b.hasMap}
+                target="_blank"
+                rel="noopener"
+              >
+                Google マップで見る
+              </a>
+            </dd>
+          </div>
+        )}
+      </dl>
+    </section>
+  )
+}

@@ -1,0 +1,39 @@
+# Cloudflare(Workers 静的アセット / Pages 互換)のカスタムヘッダ。
+# https://developers.cloudflare.com/workers/static-assets/headers/
+#
+# 静的サイトの「ホスト側で設定すべきもの」は実質このファイル。
+
+# 全ページ共通のセキュリティヘッダ。いずれも追加のコストがなく、
+# 既存の挙動を壊さないものだけをデフォルトで有効にしている。
+/*
+  # MIMEスニッフィング（Content-Type を無視した推測実行）を禁止
+  X-Content-Type-Options: nosniff
+  # 他サイトへの参照元送信を「同一オリジンならフルURL、外部にはオリジンのみ」に
+  Referrer-Policy: strict-origin-when-cross-origin
+  # クリックジャッキング対策(iframe 埋め込み禁止)
+  X-Frame-Options: DENY
+  # 使っていない強力なブラウザ機能を明示的に無効化
+  Permissions-Policy: geolocation=(), camera=(), microphone=(), interest-cohort=()
+  # HTTPS強制(2年 + サブドメイン)。
+  # 注意: 独自ドメインでHTTPSが安定してから有効化すること。
+  # サブドメインをHTTPで運用している場合は includeSubDomains を外す。
+  Strict-Transport-Security: max-age=63072000; includeSubDomains
+
+# Content-Security-Policy はサイトごとに壊れ方が違うので、
+# 動作確認のうえ有効化する前提でテンプレートを置いておく。
+# 下記はこのスターターの初期状態(Cloudflare Web Analytics あり)で動く内容。
+#
+#   style-src の 'unsafe-inline': Astro が小さな CSS を <style> として head に直接出力する
+#   script-src の cloudflareinsights.com: Cloudflare Web Analytics のビーコン
+#   (JSON-LD の <script type="application/ld+json"> は実行されないため CSP 対象外)
+#
+# 外部の埋め込み(YouTube・フォーム・タグマネージャ等)を足したら、
+# その都度 frame-src / script-src / connect-src を広げること。
+#
+# /*
+#   Content-Security-Policy: default-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; img-src 'self' data:; font-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' https://static.cloudflareinsights.com; connect-src 'self' https://cloudflareinsights.com; upgrade-insecure-requests
+
+# /_astro/* はコンテンツハッシュ付きファイル名(CSS・画像・フォント)。
+# 内容が変わればURLも変わるので、1年 + immutable で安全にキャッシュできる。
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable

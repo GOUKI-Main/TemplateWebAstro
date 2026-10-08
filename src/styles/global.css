@@ -1,0 +1,167 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+/* Tailwind 4 detects classes by scanning raw file bytes, so it cannot tell a
+   class *used* in markup from one merely *named* in prose. Without these, the
+   docs that forbid a utility are what keep it in the bundle (CLAUDE.md rule 11
+   names `min-h-screen`; README names `text-gray-700`), and an English word in
+   a test comment compiles a real utility. Neither file ships markup. */
+@source not "../../README.md";
+@source not "../../CLAUDE.md";
+@source not "../../FEATURES.md";
+@source not "../**/*.test.ts";
+
+/* Design tokens — single source for colors & fonts. Exposed as CSS variables
+   AND as Tailwind utilities (bg-bg, text-fg, text-muted, border-border, …).
+   These are the LIGHT values; the dark overrides live below.
+   TODO(setup): Q9 配色 — ライト/ダーク両方の値と site.ts の themeColor* を揃える */
+@theme {
+  --color-bg: #fbfbf9;
+  --color-fg: #1a1a1a;
+  --color-muted: #5b5b5b;
+  --color-link: #0b3d91;
+  --color-border: rgba(0, 0, 0, 0.12);
+  --color-surface: #f2f2ee;
+
+  --font-mono:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
+}
+
+/* System fonts only: nothing to download, nothing to license, no layout
+   shift. Latin falls to the OS UI face; Japanese is named explicitly so
+   Windows/Android don't pick an older CJK face over the modern one. */
+@theme {
+  --font-sans:
+    system-ui, -apple-system, "Segoe UI", "Hiragino Sans",
+    "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic UI", "Yu Gothic",
+    Meiryo, sans-serif;
+}
+
+/* Dark mode: OS preference only — no toggle, so no runtime JavaScript and no
+   flash of the wrong theme. Utilities compile to var(--color-*), so
+   redefining the variables here re-themes every utility at once.
+   Keep `theme-color` in src/content/site.ts in sync with --color-bg. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #14140f;
+    --color-fg: #ecece6;
+    --color-muted: #a3a39c;
+    --color-link: #9dbcff;
+    --color-border: rgba(255, 255, 255, 0.16);
+    --color-surface: #1e1e18;
+  }
+}
+
+/* Tell the UA which palettes exist so form controls, scrollbars and the
+   default canvas follow along. */
+:root {
+  color-scheme: light dark;
+}
+
+/* Tailwind Typography ships its own gray ramp, which would leave Markdown
+   body copy a different color from the rest of the site. Bind it to the
+   design tokens instead, so prose follows light/dark automatically.
+   Unlayered, so it wins over the `prose` utility's own variables. */
+.prose {
+  --tw-prose-body: var(--color-fg);
+  --tw-prose-headings: var(--color-fg);
+  --tw-prose-lead: var(--color-muted);
+  --tw-prose-links: var(--color-link);
+  --tw-prose-bold: var(--color-fg);
+  --tw-prose-counters: var(--color-muted);
+  --tw-prose-bullets: var(--color-border);
+  --tw-prose-hr: var(--color-border);
+  --tw-prose-quotes: var(--color-fg);
+  --tw-prose-quote-borders: var(--color-border);
+  --tw-prose-captions: var(--color-muted);
+  --tw-prose-code: var(--color-fg);
+  --tw-prose-pre-code: var(--color-fg);
+  /* Only takes effect with syntax highlighting off: Shiki writes an inline
+     background-color onto every <pre>, which outranks this. */
+  --tw-prose-pre-bg: var(--color-surface);
+  --tw-prose-th-borders: var(--color-border);
+  --tw-prose-td-borders: var(--color-border);
+}
+
+/* A long URL, hash or identifier must never push the page sideways on a
+   phone — a horizontally scrolling body is the single most common mobile
+   defect. `anywhere`, not `break-word`: per CSS Text 3 only `anywhere`
+   reduces min-content width, and min-content is what a flex or grid item is
+   sized to by default (`min-width: auto`). With `break-word` the header
+   brand, a breadcrumb crumb or a card title would still refuse to shrink and
+   would widen the document. Both values only break tokens that genuinely do
+   not fit, so ordinary Japanese and English text is unaffected. */
+body {
+  overflow-wrap: anywhere;
+}
+
+/* Second half of the same rule: replaced and embedded content has to fit the
+   column too. Preflight caps only img/video, so an <iframe> embed or a wide
+   inline <svg> would otherwise widen the page. Anything that must stay wide
+   (a wide <table>, a code block) belongs in its own `overflow-x: auto` box. */
+:where(img, svg, video, canvas, iframe, embed, object) {
+  max-width: 100%;
+}
+
+/* Sticky header: keep in-page anchor targets visible below it. The header is
+   a single row at every breakpoint (the mobile menu is a disclosure, not a
+   second row), but that row is ~77px once `tap-target` gives it a 44px child
+   on touch: 2rem of py-4 + 2.75rem + 1px border. 5.5rem leaves ~11px of
+   clearance — grow this if the header ever gains height. */
+html {
+  scroll-padding-top: 5.5rem;
+}
+
+/* The minimum interactive target size, defined once.
+   Every device gets the WCAG 2.2 AA minimum (24×24px, SC 2.5.8); devices with
+   a coarse pointer available get the 44px the platform guidelines ask for.
+   `any-pointer`, not `pointer`: `pointer` reports only the *primary* input, so
+   an iPad with a keyboard, a Surface or any touch laptop would be served 24px
+   while the user is still tapping glass.
+   Anything that needs the minimum target size reads this variable, so the
+   numbers and the breakpoint exist in exactly one place. Not in `@theme`: that would compile a
+   set of Tailwind utilities nobody should be reaching for directly. */
+:root {
+  --tap-min: 1.5rem;
+}
+@media (any-pointer: coarse) {
+  :root {
+    --tap-min: 2.75rem;
+  }
+}
+
+/* Comfortable touch targets.
+   Both axes are constrained — SC 2.5.8 is about target *area*, so height alone
+   would let an icon-only control pass while it is 9px wide.
+   Do NOT combine with a display utility (`block`, `flex`, …): custom utilities
+   sort before Tailwind's display group, so the display utility wins and the
+   centering is lost. For inline links inside a sentence, skip it — SC 2.5.8
+   exempts them, and an inline-flex box cannot share a line box with text. */
+@utility tap-target {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--tap-min);
+  min-width: var(--tap-min);
+}
+
+/* Respect a reduced-motion preference for the few transitions we ship. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Shared centered content column (header inner, main, footer inner). */
+@utility container-page {
+  margin-inline: auto;
+  width: 100%;
+  max-width: 900px;
+  padding-inline: 1.5rem;
+}

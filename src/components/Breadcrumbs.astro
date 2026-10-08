@@ -1,0 +1,40 @@
+---
+// Visible breadcrumb trail. The matching BreadcrumbList JSON-LD is emitted by
+// Base from the same items passed to its `breadcrumbs` prop. (§7)
+//
+// The type is declared here, by the component that renders it, and Base
+// imports it from here. src/lib/seo/jsonld.ts deliberately does NOT share it —
+// it accepts the same two fields structurally instead. That keeps the arrow
+// pointing one way (SEO may know about the page, the page need not know about
+// SEO), so deleting the JSON-LD layer leaves this component compiling.
+export type BreadcrumbItem = { name: string; url: string };
+
+const { items } = Astro.props as { items: BreadcrumbItem[] };
+---
+
+<nav aria-label="パンくずリスト" class="mb-6 text-sm text-muted">
+  <ol class="flex flex-wrap items-center gap-2">
+    {
+      items.map((item, i) => {
+        const last = i === items.length - 1;
+        return (
+          <li class="flex items-center gap-2">
+            {last ? (
+              <span aria-current="page" class="text-fg">
+                {item.name}
+              </span>
+            ) : (
+              <a
+                href={item.url}
+                class="tap-target no-underline hover:text-link"
+              >
+                {item.name}
+              </a>
+            )}
+            {!last && <span aria-hidden="true">/</span>}
+          </li>
+        );
+      })
+    }
+  </ol>
+</nav>

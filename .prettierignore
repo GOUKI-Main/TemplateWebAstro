@@ -1,0 +1,5 @@
+dist/
+.astro/
+pnpm-lock.yaml
+# JSONC(コメント付きJSON)は Prettier の json パーサと相性が悪いため除外
+wrangler.jsonc

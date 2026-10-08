@@ -1,0 +1,5 @@
+<!-- TODO(setup): Q10 ロゴ — 差し替えたら `pnpm images icons` で PNG/ICO を再生成 -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="ロゴ">
+  <rect width="64" height="64" rx="14" fill="#1a1a1a"/>
+  <path d="M32 13 L45 47 L32 39.5 L19 47 Z" fill="#fbfbf9"/>
+</svg>

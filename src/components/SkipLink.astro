@@ -1,0 +1,12 @@
+---
+// Padding is applied under `focus:`, not unconditionally: `not-sr-only`
+// compiles to `padding: 0` and outranks a plain `px-*`/`py-*` utility, so an
+// unprefixed padding class is dead here and the revealed link would hug its
+// own border.
+---
+
+<a
+  href="#main"
+  class="tap-target sr-only rounded-lg border border-border bg-bg focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:px-3 focus:py-2"
+  >本文へスキップ</a
+>

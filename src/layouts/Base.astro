@@ -1,0 +1,146 @@
+---
+import type { ImageMetadata } from "astro";
+import SEO, { type ArticleMeta } from "../components/SEO.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import SkipLink from "../components/SkipLink.astro";
+import Cloudflare from "../components/Cloudflare.astro";
+// The breadcrumb item shape is owned by the component that renders it, not by
+// the JSON-LD builder that also happens to consume it — so structured data can
+// be removed without breaking the visible trail.
+import type { BreadcrumbItem } from "../components/Breadcrumbs.astro";
+import { site } from "../content/site";
+import { siteGraph } from "../lib/seo/jsonld";
+import { isNoindexPath } from "../lib/noindex";
+
+import "../styles/global.css";
+
+type JsonLd = Record<string, any>;
+
+export type Props = {
+  /** Page name only (e.g. "About"). SEO appends "| Site name". Omit for home. */
+  title?: string;
+  description?: string;
+  canonicalPath?: string;
+  /** Path/URL string, or an imported image (carries intrinsic dimensions). */
+  ogImage?: string | ImageMetadata;
+  ogImageAlt?: string;
+  robots?: string;
+  ogType?: "website" | "article";
+  article?: ArticleMeta;
+  /** Visible + structured breadcrumb trail */
+  breadcrumbs?: BreadcrumbItem[];
+  /** Extra JSON-LD nodes appended to the page @graph (e.g. FAQPage). */
+  jsonLd?: JsonLd | JsonLd[];
+  mainCentered?: boolean;
+};
+
+const {
+  title,
+  description = site.description,
+  canonicalPath = Astro.url.pathname,
+  ogImage = site.seo.ogImage,
+  ogImageAlt,
+  ogType,
+  article,
+  breadcrumbs,
+  jsonLd,
+  mainCentered = false,
+} = Astro.props;
+
+// astro.config.mjs always sets `site` (from site.url in site.ts).
+const base = Astro.site!.toString();
+const canonical = new URL(canonicalPath, base).toString();
+
+// Resolve ogImage to a src string + dimensions. Imported images carry their
+// own size; the site-default OG image's size lives in site.seo.
+const ogImageSrc = typeof ogImage === "object" ? ogImage.src : ogImage;
+const ogImageWidth =
+  typeof ogImage === "object"
+    ? ogImage.width
+    : ogImage === site.seo.ogImage
+      ? site.seo.ogImageWidth
+      : undefined;
+const ogImageHeight =
+  typeof ogImage === "object"
+    ? ogImage.height
+    : ogImage === site.seo.ogImage
+      ? site.seo.ogImageHeight
+      : undefined;
+
+// noindex is managed in one place (site.seo.noindexPaths) and applied to meta;
+// the same list and the same matcher drive sitemap exclusion in astro.config,
+// so the two can't disagree. Explicit prop wins. (§1)
+const robots =
+  Astro.props.robots ??
+  (isNoindexPath(canonicalPath, site.seo.noindexPaths)
+    ? "noindex,nofollow"
+    : site.seo.robots);
+
+// <body> below takes its height from dvh, never the vh-based min-height
+// utility: on mobile browsers 100vh measures the viewport as if the URL bar
+// were hidden, so a short page leaves the footer pushed below the fold until
+// you scroll. dvh tracks the visible height.
+// This note lives in the frontmatter rather than beside the tag for two
+// reasons: Tailwind scans raw bytes, so spelling the banned class name in
+// markup would compile the very utility CLAUDE.md rule 11 forbids; and
+// Prettier folds a comment placed there into a JSX expression wrapping the
+// whole document body.
+
+const isArticle = ogType === "article";
+const graph = siteGraph({
+  site,
+  base,
+  canonical,
+  title: title ?? site.name,
+  description,
+  isArticle,
+  article: isArticle
+    ? {
+        headline: title ?? site.name,
+        description,
+        image: ogImageSrc ? new URL(ogImageSrc, base).toString() : undefined,
+        datePublished: article?.publishedTime,
+        dateModified: article?.modifiedTime,
+        authorName: article?.authorName ?? site.author.name,
+      }
+    : undefined,
+  breadcrumbs,
+  extra: Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : [],
+});
+---
+
+<!doctype html>
+<html lang={site.locale}>
+  <head>
+    <SEO
+      title={title}
+      description={description}
+      canonical={canonical}
+      ogImage={ogImageSrc}
+      ogImageWidth={ogImageWidth}
+      ogImageHeight={ogImageHeight}
+      ogImageAlt={ogImageAlt}
+      robots={robots}
+      ogType={ogType}
+      article={article}
+      jsonLd={graph}
+    />
+    <Cloudflare />
+  </head>
+
+  <body class="flex min-h-dvh flex-col bg-bg font-sans text-fg antialiased">
+    <SkipLink />
+    <Header />
+    <main
+      id="main"
+      class:list={[
+        "container-page flex-1 py-10",
+        { "grid place-items-center": mainCentered },
+      ]}
+    >
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

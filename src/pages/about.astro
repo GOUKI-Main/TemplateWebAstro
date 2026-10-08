@@ -1,0 +1,25 @@
+---
+import Base from "../layouts/Base.astro";
+import BusinessInfo from "../components/BusinessInfo.astro";
+import { site } from "../content/site";
+
+// TODO(setup): Q11 「私たちについて」— 想い・経歴・代表あいさつ・沿革など
+const title = "私たちについて";
+const description = `${site.name}について。私たちの想いと、大切にしていることをご紹介します。`;
+---
+
+<Base title={title} description={description} canonicalPath="/about">
+  <article class="prose">
+    <h1>{title}</h1>
+
+    <p class="lead">{site.name}は、〇〇のために〇〇を提供しています。</p>
+
+    <h2>私たちの想い</h2>
+    <p>はじめた理由や、お客様に約束していることをここに書きます。</p>
+
+    <h2>代表あいさつ</h2>
+    <p>{site.author.name}からのメッセージをここに書きます。</p>
+
+    <BusinessInfo />
+  </article>
+</Base>

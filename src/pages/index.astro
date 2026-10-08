@@ -1,0 +1,45 @@
+---
+import Base from "../layouts/Base.astro";
+import { site } from "../content/site";
+import FAQ from "../components/FAQ.astro";
+
+// TODO(setup): Q11 トップページ — 強み3つ / 提供内容 / 行動喚起（CTA）
+// TODO(setup): Q12 よくある質問（不要なら FAQ ごと削除）
+const faqs = [
+  {
+    q: "よくある質問1",
+    a: "回答をここに書きます。",
+  },
+  {
+    q: "よくある質問2",
+    a: "回答をここに書きます。",
+  },
+];
+---
+
+<Base description={site.description} canonicalPath="/">
+  <article class="prose">
+    <h1>{site.tagline}</h1>
+    <p class="lead">{site.description}</p>
+
+    <section>
+      <h2>選ばれる理由</h2>
+      <ul>
+        <li><strong>強み1</strong> — 具体的な説明。</li>
+        <li><strong>強み2</strong> — 具体的な説明。</li>
+        <li><strong>強み3</strong> — 具体的な説明。</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>提供しているもの</h2>
+      <p>商品・サービス・メニューの概要をここに書きます。</p>
+    </section>
+
+    <p>
+      <a href="/contact">お問い合わせはこちら</a>
+    </p>
+  </article>
+
+  <FAQ items={faqs} />
+</Base>

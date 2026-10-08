@@ -1,0 +1,61 @@
+---
+import { site, type SiteNavItem } from "../content/site";
+import NavLinks from "./NavLinks.astro";
+
+const { brand = site.name, nav = site.nav } = Astro.props as {
+  brand?: string;
+  nav?: SiteNavItem[];
+};
+---
+
+{
+  /* sticky (not fixed) so the header keeps its own space in the flow — no
+     magic top padding on <main>. bg + z keep scrolled content from showing
+     through, and `sticky` is the positioned ancestor the mobile menu panel
+     anchors to. */
+}
+<header class="sticky top-0 z-40 w-full border-b border-border bg-bg">
+  <div class="container-page flex items-center justify-between gap-4 py-4">
+    <a class="tap-target font-bold tracking-tight no-underline" href="/"
+      >{brand}</a
+    >
+
+    {
+      /* One landmark, two renderings: a disclosure on small screens and an
+         inline row from md up. <details> gives an accessible, keyboard-
+         operable menu with zero JavaScript; navigating reloads the page,
+         which closes it. */
+    }
+    <nav aria-label="主要ナビゲーション">
+      <details class="md:hidden">
+        {
+          /* list-none + marker:content-[''] look redundant next to
+             tap-target's `display: inline-flex` (which removes the marker box
+             outright) — they are the fallback if that display is ever
+             overridden, which is cheap insurance for the site's only
+             JavaScript-free navigation control. */
+        }
+        <summary
+          class="tap-target cursor-pointer list-none rounded-lg border border-border px-3 text-sm marker:content-['']"
+        >
+          メニュー
+        </summary>
+        {
+          /* max-height so a long nav scrolls inside the panel instead of
+            running off a short (or landscape) phone screen. */
+        }
+        <div
+          class="absolute inset-x-0 top-full max-h-[75dvh] overflow-y-auto overscroll-contain border-b border-border bg-bg"
+        >
+          <div class="container-page py-2">
+            <NavLinks items={nav} block />
+          </div>
+        </div>
+      </details>
+
+      <div class="hidden md:block">
+        <NavLinks items={nav} />
+      </div>
+    </nav>
+  </div>
+</header>

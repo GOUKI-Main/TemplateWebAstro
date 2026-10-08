@@ -1,0 +1,25 @@
+---
+/**
+ * Cloudflare Web Analytics — privacy-friendly, cookie-less analytics.
+ *
+ * Renders the beacon ONLY when a token is configured, so local/dev and
+ * unconfigured deploys never ship a broken or unwanted beacon. (§6 解析)
+ *
+ * Enable by setting `cloudflareBeaconToken` in src/content/site.ts. The token
+ * is public by design (it ends up in the client), so committing it is fine.
+ */
+import { site } from "../content/site";
+
+const token = site.cloudflareBeaconToken;
+---
+
+{
+  token && (
+    <script
+      is:inline
+      defer
+      src="https://static.cloudflareinsights.com/beacon.min.js"
+      data-cf-beacon={JSON.stringify({ token })}
+    />
+  )
+}

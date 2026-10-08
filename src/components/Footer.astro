@@ -1,0 +1,73 @@
+---
+import { site } from "../content/site";
+
+const { author } = site;
+const year = new Date().getFullYear();
+
+// Brand profiles (site.sameAs) first, then the author's own; de-duplicated so
+// the same account listed in both places renders once. Labels come from the
+// host, so adding a URL in site.ts is all it takes.
+const LABELS: Record<string, string> = {
+  "x.com": "X",
+  "twitter.com": "X",
+  "instagram.com": "Instagram",
+  "facebook.com": "Facebook",
+  "youtube.com": "YouTube",
+  "tiktok.com": "TikTok",
+  "line.me": "LINE",
+  "note.com": "note",
+  "github.com": "GitHub",
+  "linkedin.com": "LinkedIn",
+};
+const labelFor = (url: string) => {
+  const host = new URL(url).hostname.replace(/^www\./, "");
+  return LABELS[host] ?? host;
+};
+const profiles = [
+  ...new Set([
+    ...(site.sameAs ?? []),
+    ...(Object.values(author.socials ?? {}).filter(Boolean) as string[]),
+  ]),
+];
+
+// One list, one rendering: policy pages, mail, then external profiles.
+const links: { label: string; href: string; external?: boolean }[] = [
+  ...(site.footerNav ?? []),
+  ...(author.email
+    ? [{ label: "メール", href: `mailto:${author.email}` }]
+    : []),
+  ...profiles.map((url) => ({
+    label: labelFor(url),
+    href: url,
+    external: true,
+  })),
+];
+---
+
+<footer class="border-t border-border">
+  <div
+    class="container-page flex flex-col items-start gap-2 py-6 text-sm text-muted sm:flex-row sm:items-center sm:justify-between sm:gap-4"
+  >
+    <p class="m-0">
+      {
+        /* The rights holder is the business, not the person running the site. */
+      }
+      {`© ${year} ${site.business?.legalName ?? site.name}`}
+    </p>
+
+    <div class="flex flex-wrap gap-x-5 gap-y-1">
+      {
+        links.map((link) => (
+          <a
+            class="tap-target text-muted no-underline hover:text-link"
+            href={link.href}
+            target={link.external ? "_blank" : undefined}
+            rel={link.external ? "noopener" : undefined}
+          >
+            {link.label}
+          </a>
+        ))
+      }
+    </div>
+  </div>
+</footer>

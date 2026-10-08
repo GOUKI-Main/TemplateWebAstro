@@ -1,0 +1,25 @@
+---
+import Base from "../layouts/Base.astro";
+
+const title = "ページが見つかりません";
+const description = "お探しのページは存在しません。";
+---
+
+<Base
+  title={title}
+  description={description}
+  canonicalPath="/404"
+  robots="noindex,nofollow"
+  mainCentered
+>
+  <article class="prose">
+    <h1>404 — ページが見つかりません</h1>
+    <p class="lead">
+      お探しのページは存在しないか、移動された可能性があります。
+    </p>
+
+    <p>
+      <a href="/">ホームへ戻る</a>
+    </p>
+  </article>
+</Base>

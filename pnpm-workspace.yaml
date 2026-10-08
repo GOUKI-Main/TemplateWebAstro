@@ -1,0 +1,5 @@
+# pnpm 11+ build-script approvals (Astro bundler + image pipeline need these).
+allowBuilds:
+  esbuild: true
+  sharp: true
+  workerd: true
