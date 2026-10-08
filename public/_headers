@@ -14,10 +14,10 @@
   X-Frame-Options: DENY
   # 使っていない強力なブラウザ機能を明示的に無効化
   Permissions-Policy: geolocation=(), camera=(), microphone=(), interest-cohort=()
-  # HTTPS強制(2年 + サブドメイン)。
-  # 注意: 独自ドメインでHTTPSが安定してから有効化すること。
-  # サブドメインをHTTPで運用している場合は includeSubDomains を外す。
-  Strict-Transport-Security: max-age=63072000; includeSubDomains
+  # HTTPS強制(2年)。このサイトのドメインだけに効く。
+  # 同じドメインの全サブドメインもHTTPSで運用していると確認できたら、
+  # 末尾に "; includeSubDomains" を足してよい(足すと HTTP のサブドメインが開けなくなる)。
+  Strict-Transport-Security: max-age=63072000
 
 # Content-Security-Policy はサイトごとに壊れ方が違うので、
 # 動作確認のうえ有効化する前提でテンプレートを置いておく。

@@ -50,6 +50,9 @@ const ogImageUrl = ogImage
 const hasOg = Boolean(ogImageUrl);
 
 const jsonLdArray = Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : [];
+// JSON.stringify leaves "<" alone, so a value containing "</script>" would end
+// the tag early. \u003c is the same character to a JSON parser.
+const toJsonLd = (obj: unknown) => JSON.stringify(obj).replace(/</g, "\\u003c");
 
 // Optional Search Console verification (site.seo.googleSiteVerification). (§1)
 const gscVerification = site.seo.googleSiteVerification;
@@ -137,10 +140,6 @@ const gscVerification = site.seo.googleSiteVerification;
 
 {
   jsonLdArray.map((obj) => (
-    <script
-      is:inline
-      type="application/ld+json"
-      set:html={JSON.stringify(obj)}
-    />
+    <script is:inline type="application/ld+json" set:html={toJsonLd(obj)} />
   ))
 }

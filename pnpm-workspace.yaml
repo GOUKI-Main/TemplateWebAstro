@@ -3,3 +3,8 @@ allowBuilds:
   esbuild: true
   sharp: true
   workerd: true
+
+# Security floors for transitive deps that their parents pin to vulnerable
+# versions. Remove an entry once the parent ships the fix itself.
+overrides:
+  sharp: ">=0.35.5" # wrangler > miniflare > sharp (libvips/libheif CVEs)
