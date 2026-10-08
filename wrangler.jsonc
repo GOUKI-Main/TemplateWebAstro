@@ -8,7 +8,8 @@
   //
   //  デプロイ: GitHub 連携の Cloudflare Workers Builds が push 時に自動ビルド&デプロイ。
   //   - 本番ブランチ:   Deploy command = `npx wrangler deploy`(ダッシュボード既定)
-  //   - 非本番ブランチ: `npx wrangler versions upload`(プレビューURL→PRコメント)
+  //   - 非本番ブランチ: `npx wrangler versions upload` または `npx wrangler preview`
+  //     (プレビューURL→PRコメント。後者は下の "previews" ブロックが必須)
   //   - Build command = `pnpm build`(出力 ./dist を本ファイルの assets でアップロード)
   //   - サイトURL・解析トークン等は src/content/site.ts にコミット済み(ビルド変数は不要)
   //   - wrangler は devDependency 済み(CI が版を固定して使用)
@@ -52,7 +53,14 @@
     // 静的アセットより先に Worker を実行するパス(認証/ログ等)。
     // 例: ["/api/*", "!/api/docs/*"]
     // "run_worker_first": false
-  }
+  },
+
+  // ── プレビュー(Worker Previews) ─────────────────────────────────────────
+  // `npx wrangler preview`(非本番ブランチのプレビューデプロイ)は、このブロックが
+  // 無いと「missing a `previews` block」で失敗する。空でよい。
+  // assets / compatibility_date などはトップレベルの値がそのまま使われる。
+  // バインディングや vars を足したら、プレビュー用の値をここにも書く(継承されない)。
+  "previews": {}
 
   // ##########################################################################
   //  ここから下はすべて「現状未使用」。必要時に // を外して使う。
