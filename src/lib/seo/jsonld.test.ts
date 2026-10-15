@@ -15,6 +15,7 @@ const testSite: SiteConfig = {
   description: "description",
   locale: "ja",
   ogLocale: "ja_JP",
+  publisher: "Organization",
   sameAs: ["https://x.com/test"],
   author: {
     name: "Author",
@@ -159,6 +160,28 @@ describe("siteGraph", () => {
       "@type": "Person",
       name: "Guest Writer",
     });
+  });
+
+  it("makes the site Person the publisher when publisher is Person", () => {
+    const personSite: SiteConfig = { ...testSite, publisher: "Person" };
+    const result = siteGraph({
+      site: personSite,
+      base,
+      canonical,
+      title: "Post",
+      description: "desc",
+      isArticle: true,
+      article: { headline: "Post" },
+    });
+    const person = nodeOf(result, "Person")!;
+    expect(nodeOf(result, "Organization")).toBeUndefined();
+    expect(nodeOf(result, "WebSite")!.publisher["@id"]).toBe(person["@id"]);
+    expect(nodeOf(result, "Article")!.publisher["@id"]).toBe(person["@id"]);
+    // The Person carries the site's official profiles and logo instead.
+    expect(person.sameAs).toEqual(
+      expect.arrayContaining(["https://x.com/author", "https://x.com/test"]),
+    );
+    expect(person.image).toBe("https://example.com/icon-512.png");
   });
 
   it("omits LocalBusiness unless site.business is configured", () => {

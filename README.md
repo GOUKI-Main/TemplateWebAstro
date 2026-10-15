@@ -34,18 +34,19 @@ pnpm install
 pnpm dev
 ```
 
-| Script              | Description                                        |
-| ------------------- | -------------------------------------------------- |
-| `pnpm dev`          | Start the dev server                               |
-| `pnpm build`        | Production build to `dist/`                        |
-| `pnpm preview`      | Preview the production build                       |
-| `pnpm check`        | `astro check` (type + diagnostics)                 |
-| `pnpm test`         | Vitest unit tests (`src/**/*.test.ts`)             |
-| `pnpm check:links`  | Internal link check over `dist/` (run after build) |
-| `pnpm format`       | Prettier (`prettier-plugin-astro`) over the repo   |
-| `pnpm format:check` | Formatting check (same as CI)                      |
-| `pnpm check:setup`  | List template placeholders not yet filled in       |
-| `pnpm images`       | Regenerate icons / OG image (`icons`, `og`, …)     |
+| Script              | Description                                            |
+| ------------------- | ------------------------------------------------------ |
+| `pnpm dev`          | Start the dev server                                   |
+| `pnpm build`        | Production build to `dist/`                            |
+| `pnpm preview`      | Preview the production build                           |
+| `pnpm check`        | `astro check` (type + diagnostics)                     |
+| `pnpm test`         | Vitest unit tests (`src/**/*.test.ts`)                 |
+| `pnpm check:links`  | Internal link check over `dist/` (run after build)     |
+| `pnpm check:jsonld` | JSON-LD check + summary over `dist/` (run after build) |
+| `pnpm format`       | Prettier (`prettier-plugin-astro`) over the repo       |
+| `pnpm format:check` | Formatting check (same as CI)                          |
+| `pnpm check:setup`  | List template placeholders not yet filled in           |
+| `pnpm images`       | Regenerate icons / OG image (`icons`, `og`, …)         |
 
 > Set `url` in `src/content/site.ts` to your domain for correct canonical
 > URLs, sitemap and JSON-LD. There is no `.env` and no build variable.
@@ -98,8 +99,10 @@ Never put a real secret in this file.
 
 - Per-page `<title>` (`Page | Site`), meta description, absolute canonical
 - Open Graph + Twitter cards with an **absolute** image URL
-- Connected JSON-LD `@graph` (`src/lib/seo/jsonld.ts`): Organization, WebSite,
-  Person, WebPage + optional BreadcrumbList, all linked by `@id`
+- Connected JSON-LD `@graph` (`src/lib/seo/jsonld.ts`): Organization (or a
+  Person publisher via `site.publisher`), WebSite, Person, WebPage + optional
+  BreadcrumbList, all linked by `@id`; `pnpm check:jsonld` validates the built
+  output and prints what it tells search engines
 - Optional `LocalBusiness` node + visible NAP when `site.business` is set
 - Rich `robots` defaults (`max-image-preview:large`, …); optional GSC meta
 
@@ -139,7 +142,7 @@ Never put a real secret in this file.
 **CI & tests**
 
 - `.github/workflows/ci.yml` runs `format:check` + `astro check` + `test` +
-  `build` + `check:links` on every push/PR (deploys stay on Cloudflare Workers
+  `build` + `check:links` + `check:jsonld` on every push/PR (deploys stay on Cloudflare Workers
   Builds)
 - Vitest specs cover the parts that break invisibly: JSON-LD `@id` wiring and
   `noindex` path matching

@@ -104,22 +104,22 @@ Q13 が「する」なら、特商法表記に必要な項目（販売事業者�
 
 ## 回答の書き込み先
 
-| 質問 | 書き込み先                                                                                                                                                                                                                                                                                                           |
-| ---- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Q1   | 直接の書き込み先なし。Q5・Q6・Q12 の既定案と、`business.type` の選択に使う                                                                                                                                                                                                                                           |
-| Q2   | `site.ts` の `name`。`package.json` と `wrangler.jsonc` の `"name"` は**英小文字とハイフン**に変換して設定（例: `cafe-hinata`）                                                                                                                                                                                      |
-| Q3   | `site.ts` の `tagline` / `description`                                                                                                                                                                                                                                                                               |
-| Q4   | `site.ts` の `author.name` / `author.email`。author は**人**（JSON-LD の Person になる）。会社名は `name` か `business.legalName` へ                                                                                                                                                                                 |
-| Q5   | `site.ts` の `business`（コメントを外して埋める）。`type` は schema.org の型（`Restaurant` `CafeOrCoffeeShop` `BeautySalon` `Dentist` `LegalService` `Store` など。迷えば `LocalBusiness`）。電話は `+81-` 形式、営業時間は `Mo-Fr 09:00-18:00` 形式、`addressCountry: "JP"`。緯度経度は地図リンクから分かる場合だけ |
-| Q6   | `src/pages/*.astro` を追加・削除し、`site.ts` の `nav` を並べ替える。法的ページは `footerNav`                                                                                                                                                                                                                        |
-| Q7   | メール → `author.email`、電話 → `business.telephone`、外部フォーム → `site.ts` の `contactFormUrl`、LINE → `sameAs` に入れて `contact.astro` にも案内を追加。`contact.astro` の並び順と案内文                                                                                                                        |
-| Q8   | `site.ts` の `sameAs`（フッターに自動でリンクが出る）                                                                                                                                                                                                                                                                |
-| Q9   | `src/styles/global.css` の `@theme`（ライト）と `prefers-color-scheme: dark`（ダーク）の両方、`site.ts` の `themeColor` / `themeColorDark`（= 各 `--color-bg`）                                                                                                                                                      |
-| Q10  | ロゴ → `public/favicon.svg` を差し替えて `pnpm images icons`。OG画像 → 写真があれば `pnpm images og <画像>`、無ければ配色確定後に `pnpm images og-text`。掲載写真 → `src/assets/images/`                                                                                                                             |
-| Q11  | 各ページの本文（`src/pages/*.astro`）                                                                                                                                                                                                                                                                                |
-| Q12  | `index.astro` の `faqs`（独立ページを選んだ場合はそちら）。不要なら `<FAQ>` ごと削除                                                                                                                                                                                                                                 |
-| Q13  | `src/pages/legal.astro`。特商法が必要なら同ページに節を足すか `/tokushoho` を作って `footerNav` に追加                                                                                                                                                                                                               |
-| Q14  | `site.ts` の `url`（`https://` から始めて末尾スラッシュなし）。`.env` やビルド変数は使わない                                                                                                                                                                                                                         |
+| 質問 | 書き込み先                                                                                                                                                                                                                                                                                                                                                        |
+| ---- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Q1   | `site.ts` の `publisher`（JSON-LD の主体）: 会社・店舗・教室・団体 → `"Organization"`、個人・フリーランス → `"Person"`。Q5・Q6・Q12 の既定案と `business.type` の選択にも使う                                                                                                                                                                                     |
+| Q2   | `site.ts` の `name`。`package.json` と `wrangler.jsonc` の `"name"` は**英小文字とハイフン**に変換して設定（例: `cafe-hinata`）                                                                                                                                                                                                                                   |
+| Q3   | `site.ts` の `tagline` / `description`                                                                                                                                                                                                                                                                                                                            |
+| Q4   | `site.ts` の `author.name` / `author.email`。author は**人**（JSON-LD の Person になる）。会社名は `name` か `business.legalName` へ                                                                                                                                                                                                                              |
+| Q5   | `site.ts` の `business`（コメントを外して埋める）。`type` は schema.org の型（`Restaurant` `CafeOrCoffeeShop` `BeautySalon` `Dentist` `LegalService` `Store` など。迷えば `LocalBusiness`）。電話は `+81-` 形式、公開してよい店舗のメールは `business.email`、営業時間は `Mo-Fr 09:00-18:00` 形式、`addressCountry: "JP"`。緯度経度は地図リンクから分かる場合だけ |
+| Q6   | `src/pages/*.astro` を追加・削除し、`site.ts` の `nav` を並べ替える。法的ページは `footerNav`                                                                                                                                                                                                                                                                     |
+| Q7   | メール → `author.email`、電話 → `business.telephone`、外部フォーム → `site.ts` の `contactFormUrl`、LINE → `sameAs` に入れて `contact.astro` にも案内を追加。`contact.astro` の並び順と案内文                                                                                                                                                                     |
+| Q8   | `site.ts` の `sameAs`（フッターに自動でリンクが出る）                                                                                                                                                                                                                                                                                                             |
+| Q9   | `src/styles/global.css` の `@theme`（ライト）と `prefers-color-scheme: dark`（ダーク）の両方、`site.ts` の `themeColor` / `themeColorDark`（= 各 `--color-bg`）                                                                                                                                                                                                   |
+| Q10  | ロゴ → `public/favicon.svg` を差し替えて `pnpm images icons`。OG画像 → 写真があれば `pnpm images og <画像>`、無ければ配色確定後に `pnpm images og-text`。掲載写真 → `src/assets/images/`                                                                                                                                                                          |
+| Q11  | 各ページの本文（`src/pages/*.astro`）                                                                                                                                                                                                                                                                                                                             |
+| Q12  | `index.astro` の `faqs`（独立ページを選んだ場合はそちら）。不要なら `<FAQ>` ごと削除                                                                                                                                                                                                                                                                              |
+| Q13  | `src/pages/legal.astro`。特商法が必要なら同ページに節を足すか `/tokushoho` を作って `footerNav` に追加                                                                                                                                                                                                                                                            |
+| Q14  | `site.ts` の `url`（`https://` から始めて末尾スラッシュなし）。`.env` やビルド変数は使わない                                                                                                                                                                                                                                                                      |
 
 ## 書き込むときの決まり
 
@@ -138,16 +138,37 @@ Q13 が「する」なら、特商法表記に必要な項目（販売事業者�
   は使わない。利用者が言っていない実績・数値・資格を書かない。
 - 第2部のルールはセットアップ中も全部守る。
 
+## 構造化データ（JSON-LD）の確定
+
+JSON-LD は `site.ts` から自動で組み立てられるが、**セットアップでは必ず中身を
+確かめて確定させる**（画面に出ないので、仮の値のまま公開されても気づけない）。
+
+1. 書き込み後に `pnpm build && pnpm check:jsonld` を実行する。トップページの
+   JSON-LD が「検索エンジンに伝える内容」（サイト名・運営者とその種類・ロゴ・
+   SNS・店舗の名称/住所/電話/営業時間など）として表示される。
+2. その一覧を利用者向けの言葉に直して見せ、「Google にはこの内容で伝わります。
+   合っていますか？」と確認を取る。技術用語（`@graph` など）は出さない。
+3. 次を Claude 側で確認する（利用者には聞かない）:
+   - 主体（`publisher`）が Q1 と合っている。個人なのに会社扱い、またはその逆に
+     なっていない
+   - `business.type` が業種に合う schema.org の型になっている（Q5）
+   - JSON-LD の住所・電話・営業時間が、ページに表示している内容
+     （`BusinessInfo` やアクセスページ）と一字一句一致している
+   - `sameAs` が公式アカウントだけで、個人の私的なアカウントが混ざっていない
+4. `pnpm check:jsonld --strict` が終了コード 0 になるまで直す（テンプレートの
+   仮の値が残っていると失敗する。公開URLが未定の `example.com` は注記のみ）。
+
 ## 完了の条件
 
 1. 次がすべて通る:
-   `pnpm format && pnpm check && pnpm test && pnpm build && pnpm check:links`
+   `pnpm format && pnpm check && pnpm test && pnpm build && pnpm check:links && pnpm check:jsonld --strict`
 2. `pnpm check:setup` が終了コード 0（未決定の項目を残した場合は、その一覧を
    利用者に伝えて完了扱いにしてよい）
 3. 生成した OG 画像・アイコンを自分の目で確認した（`og-text` の日本語は
    マシンのフォントに依存するので、文字化けしていないか必ず見る）
 4. 変更をコミットし、利用者に以下を報告する:
    - 作ったページの一覧と、未決定の項目
+   - 検索エンジンに伝わる内容（`pnpm check:jsonld` の要約）
    - 公開手順（`README.md` の「Deploy」）: Cloudflare でリポジトリを接続する
      だけ（ビルド変数の設定は不要）
    - 公開後にできること: アクセス解析のトークン（`cloudflareBeaconToken`）と
@@ -164,19 +185,20 @@ Q13 が「する」なら、特商法表記に必要な項目（販売事業者�
 
 ## コマンド
 
-| 目的             | コマンド                                      |
-| ---------------- | --------------------------------------------- |
-| 開発             | `pnpm dev`                                    |
-| 型チェック       | `pnpm check`                                  |
-| 単体テスト       | `pnpm test`                                   |
-| ビルド           | `pnpm build`                                  |
-| リンク検査       | `pnpm check:links`（`pnpm build` の後に実行） |
-| フォーマット     | `pnpm format`                                 |
-| セットアップ残り | `pnpm check:setup`（CIには入れない）          |
-| 画像の再生成     | `pnpm images icons` / `og <画像>` / `og-text` |
+| 目的             | コマンド                                                                  |
+| ---------------- | ------------------------------------------------------------------------- |
+| 開発             | `pnpm dev`                                                                |
+| 型チェック       | `pnpm check`                                                              |
+| 単体テスト       | `pnpm test`                                                               |
+| ビルド           | `pnpm build`                                                              |
+| リンク検査       | `pnpm check:links`（`pnpm build` の後に実行）                             |
+| JSON-LD 検査     | `pnpm check:jsonld`（`pnpm build` の後に実行）。`--strict` で仮の値も検出 |
+| フォーマット     | `pnpm format`                                                             |
+| セットアップ残り | `pnpm check:setup`（CIには入れない）                                      |
+| 画像の再生成     | `pnpm images icons` / `og <画像>` / `og-text`                             |
 
 CI と同じ検査をローカルで通すには:
-`pnpm format:check && pnpm check && pnpm test && pnpm build && pnpm check:links`
+`pnpm format:check && pnpm check && pnpm test && pnpm build && pnpm check:links && pnpm check:jsonld`
 
 ## 守るべきルール
 
@@ -208,7 +230,9 @@ CI と同じ検査をローカルで通すには:
    ページごとに単一の `@graph` を出力する。ノードを増やしたら
    `jsonld.test.ts` の参照解決テストが通ることを確認する。店舗情報
    （LocalBusiness）は `site.business` から自動で出るので、ページに直接
-   JSON-LD を書かない。
+   JSON-LD を書かない。サイトの運営主体は `site.publisher` で決まる
+   （`"Organization"` なら Organization ノード、`"Person"` なら Organization を
+   出さず Person が publisher になる）。出力結果は `pnpm check:jsonld` で検査する。
 
 6. **ランタイムJavaScriptを増やさない。**
    現状の唯一のJSは Astro の prefetch（約2.3kB）。UIの状態は CSS と
@@ -266,6 +290,8 @@ CI と同じ検査をローカルで通すには:
   入力を読み返すだけのテストは書かない）。
 - `src/**/*.test.ts` を Vitest が拾う（`vitest.config.ts` は `getViteConfig` を
   使うのでテストからも `astro:*` を解決できる）。
+- `scripts/check-jsonld.mjs` は `dist/` の全ページの JSON-LD を検査する
+  （1ページ1つの `@graph`、`@id` の重複なし、参照がすべて解決する）。
 - `scripts/check-links.mjs` は `dist/` の内部リンクのみ検査する。外部リンクは
   意図的に叩かない（CIが外部要因で落ちるため）。
 

@@ -32,6 +32,12 @@ export type BusinessConfig = {
   openingHours?: string[];
 };
 
+/** Who runs the site, as structured data. "Organization" for a company, shop
+ *  or group; "Person" for an individual / freelancer. With "Person", no
+ *  Organization node is emitted and the site Person becomes the publisher.
+ *  (構造化データの主体) */
+export type PublisherType = "Organization" | "Person";
+
 export type SiteConfig = {
   /** Absolute production origin, no trailing slash (e.g. "https://example.jp").
    *  Drives canonical URLs, sitemap, robots.txt and JSON-LD via Astro.site. */
@@ -41,6 +47,7 @@ export type SiteConfig = {
   description: string;
   locale: string;
   ogLocale: string;
+  publisher: PublisherType;
   /** Brand/organization social profiles → Organization.sameAs (§4/§10). */
   sameAs?: string[];
   author: {
@@ -101,6 +108,8 @@ export const site: SiteConfig = {
     "検索結果やSNSでのシェア時に表示される、サイト全体の説明文です。誰に・何を・どこで提供しているかを120字前後で書きます。",
   locale: "ja",
   ogLocale: "ja_JP",
+  // TODO(setup): Q1 構造化データ（JSON-LD）の主体。会社・店舗・団体 → "Organization"、個人・フリーランス → "Person"
+  publisher: "Organization",
   // TODO(setup): Q8 公式SNSのURL（なければ空配列）
   sameAs: [],
   // TODO(setup): Q4 運営責任者（人の名前）と連絡用メールアドレス
@@ -119,6 +128,7 @@ export const site: SiteConfig = {
   //   type: "LocalBusiness",
   //   legalName: "株式会社〇〇",
   //   telephone: "+81-3-0000-0000",
+  //   email: "info@example.jp", // 公開してよい店舗の連絡先だけ
   //   priceRange: "¥¥",
   //   address: { streetAddress: "1-2-3", addressLocality: "渋谷区", addressRegion: "東京都", postalCode: "150-0001", addressCountry: "JP" },
   //   geo: { latitude: 35.6595, longitude: 139.7005 },
