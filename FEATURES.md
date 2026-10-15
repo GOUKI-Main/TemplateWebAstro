@@ -290,7 +290,10 @@ Analytics、GSC メタ、theme-color、ダークモード。
    `const jsonLdArray`、末尾の `jsonLdArray.map( … )` を削除
 4. `breadcrumbs={crumbs}` を渡しているページがあれば削除
    （表示用の `<Breadcrumbs items={crumbs} />` は残せる）
-5. パンくずの表示も止めるなら §3.2-j へ
+5. `scripts/check-jsonld.mjs`、`package.json` の `check:jsonld`、
+   `.github/workflows/ci.yml` の `pnpm check:jsonld` の行、`site.ts` の
+   `publisher`（型 `PublisherType` ごと）を削除
+6. パンくずの表示も止めるなら §3.2-j へ
 
 > **`src/components/Breadcrumbs.astro` は触る必要がありません。** 型は
 > コンポーネント側が持ち、`jsonld.ts` は同じ形を自前で持っているためです
@@ -311,12 +314,13 @@ pnpm format:check && pnpm check && pnpm test && pnpm build && pnpm check:links
 
 拾えるもの / 拾えないものは把握しておくと安全です。
 
-| 検査               | 拾えるもの                                                 | 拾えないもの                   |
-| ------------------ | ---------------------------------------------------------- | ------------------------------ |
-| `astro check`      | 型エラー、消し忘れた import                                | 出力内容の妥当性               |
-| `pnpm test`        | JSON-LD の `@id` 参照、noindex 判定                        | 表示・レイアウト               |
-| `pnpm check:links` | HTML 内の死んだ内部リンク、`robots.txt` の `Sitemap:` 参照 | それ以外のファイル、外部リンク |
-| `pnpm build`       | 依存の欠落                                                 | 消し漏れた設定値               |
+| 検査                | 拾えるもの                                                   | 拾えないもの                   |
+| ------------------- | ------------------------------------------------------------ | ------------------------------ |
+| `astro check`       | 型エラー、消し忘れた import                                  | 出力内容の妥当性               |
+| `pnpm test`         | JSON-LD の `@id` 参照、noindex 判定                          | 表示・レイアウト               |
+| `pnpm check:links`  | HTML 内の死んだ内部リンク、`robots.txt` の `Sitemap:` 参照   | それ以外のファイル、外部リンク |
+| `pnpm check:jsonld` | 出力された JSON-LD の構文・`@id` 参照（`--strict` で仮の値） | 値が事実と合っているか         |
+| `pnpm build`        | 依存の欠落                                                   | 消し漏れた設定値               |
 
 ---
 

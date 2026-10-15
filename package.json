@@ -18,7 +18,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "check:setup": "node scripts/check-setup.mjs",
-    "images": "node scripts/generate-images.mjs"
+    "images": "node scripts/generate-images.mjs",
+    "check:jsonld": "node scripts/check-jsonld.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.4",

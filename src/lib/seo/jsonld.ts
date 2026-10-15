@@ -41,6 +41,11 @@ const ids = (base: string) => ({
   breadcrumb: (canonical: string) => `${canonical}#breadcrumb`,
 });
 
+/** `@id` of whoever publishes the site: the Organization, or the site Person
+ *  when `site.publisher` is "Person". */
+const publisherId = (site: SiteConfig, base: string) =>
+  site.publisher === "Person" ? ids(base).person : ids(base).organization;
+
 export function organizationNode(site: SiteConfig, base: string): Node {
   const id = ids(base);
   const logo = site.seo.logo ? abs(site.seo.logo, base) : undefined;
@@ -49,6 +54,7 @@ export function organizationNode(site: SiteConfig, base: string): Node {
     "@id": id.organization,
     name: site.name,
     url: `${origin(base)}/`,
+    description: site.description,
     ...(logo && {
       logo: {
         "@type": "ImageObject",
@@ -69,21 +75,32 @@ export function webSiteNode(site: SiteConfig, base: string): Node {
     "@id": id.website,
     name: site.name,
     url: `${origin(base)}/`,
+    description: site.description,
     inLanguage: site.locale,
-    publisher: { "@id": id.organization },
+    publisher: { "@id": publisherId(site, base) },
   };
 }
 
 export function personNode(site: SiteConfig, base: string): Node {
   const id = ids(base);
-  const sameAs = Object.values(site.author.socials ?? {}).filter(
+  const socials = Object.values(site.author.socials ?? {}).filter(
     Boolean,
   ) as string[];
+  // As the publisher, the Person stands in for the Organization: it takes the
+  // site's URL, logo and official profiles too.
+  const isPublisher = site.publisher === "Person";
+  const url = site.author.url ?? (isPublisher ? `${origin(base)}/` : undefined);
+  const sameAs = [
+    ...new Set([...socials, ...(isPublisher ? (site.sameAs ?? []) : [])]),
+  ];
+  const image =
+    isPublisher && site.seo.logo ? abs(site.seo.logo, base) : undefined;
   return {
     "@type": "Person",
     "@id": id.person,
     name: site.author.name,
-    ...(site.author.url && { url: site.author.url }),
+    ...(url && { url }),
+    ...(image && { image }),
     ...(sameAs.length ? { sameAs } : {}),
   };
 }
@@ -134,7 +151,7 @@ export function articleNode(opts: {
       article.authorName && article.authorName !== site.author.name
         ? { "@type": "Person", name: article.authorName }
         : { "@id": id.person },
-    publisher: { "@id": id.organization },
+    publisher: { "@id": publisherId(site, base) },
   };
 }
 
@@ -164,6 +181,7 @@ export function localBusinessNode(site: SiteConfig, base: string): Node | null {
     "@id": id.localBusiness,
     name: b.legalName ?? site.name,
     url: `${origin(base)}/`,
+    description: site.description,
     ...(logo && { image: logo }),
     ...(b.telephone && { telephone: b.telephone }),
     ...(b.email && { email: b.email }),
@@ -186,8 +204,8 @@ export function localBusinessNode(site: SiteConfig, base: string): Node | null {
 }
 
 /**
- * Compose the full page graph: base nodes (Organization, WebSite, Person,
- * optional LocalBusiness) plus the current WebPage and any page-specific
+ * Compose the full page graph: base nodes (Organization unless the publisher
+ * is a Person, WebSite, Person, optional LocalBusiness) plus the current WebPage and any page-specific
  * Article / BreadcrumbList nodes. Returns a single `@graph` object.
  */
 export function siteGraph(opts: {
@@ -213,8 +231,13 @@ export function siteGraph(opts: {
     extra,
   } = opts;
 
-  const graph: Node[] = [organizationNode(site, base), webSiteNode(site, base)];
-  if (site.author?.name) graph.push(personNode(site, base));
+  const graph: Node[] = [];
+  if (site.publisher !== "Person") graph.push(organizationNode(site, base));
+  graph.push(webSiteNode(site, base));
+  // A Person publisher is referenced by WebSite.publisher, so it is always
+  // emitted; otherwise only when an author is named.
+  if (site.publisher === "Person" || site.author?.name)
+    graph.push(personNode(site, base));
 
   const business = localBusinessNode(site, base);
   if (business) graph.push(business);
